@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Feather as Icon } from '@expo/vector-icons'
 import { View, ImageBackground, Text, Image, StyleSheet, KeyboardAvoidingView, Platform } from 'react-native';
-import { RectButton, TextInput } from 'react-native-gesture-handler';
+import { RectButton, TextInput, TouchableHighlight } from 'react-native-gesture-handler';
 import { useNavigation } from '@react-navigation/native';
 import RNPickerSelect from 'react-native-picker-select';
 import axios from 'axios';
@@ -51,29 +51,37 @@ const Home = () => {
 
     return (
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
-            <View style={styles.container}>
-                <View style={styles.main}>
-                    <Text>logo</Text>
-                    <View style={{alignItems: 'center'}}>
-                        <Text style={styles.title}>Aplicativo feito para você caminhoneiro</Text>
-                        {/* <Text style={styles.description}>Subtitulo.</Text> */}
-                    </View>
-                </View>
-
-                <View style={styles.footer}>
-                    <RectButton style={styles.button} onPress={navigatePoint}>
-                        <View style={styles.buttonIcon}>
-                            <Text>
-                                <Icon name="arrow-right" color="#FFF" size={24}></Icon>
-                            </Text>
+            <ImageBackground source={require('../../../assets/background.jpg')} style={styles.backgroundImage}>
+                <View style={styles.container}>
+                    <View style={styles.main}>
+                        <Text>logo</Text>
+                        <View style={{ alignItems: 'center' }}>
+                            <Text style={styles.title}>Aplicativo feito para você caminhoneiro</Text>
+                            {/* <Text style={styles.description}>Subtitulo.</Text> */}
                         </View>
+                    </View>
+
+                    <View style={styles.footer}>
+                        <TouchableHighlight
+                            style={styles.submit}
+                            onPress={navigatePoint}
+                            underlayColor='#ffffff4d'>
+                            <Text style={styles.submitText}>ENTRAR</Text>
+                        </TouchableHighlight>
+                        {/* <RectButton style={styles.button} onPress={navigatePoint} >
+                            <View style={styles.buttonIcon}>
+                                <Text>
+                                    <Icon name="arrow-right" color="#FFF" size={24}></Icon>
+                                </Text>
+                            </View>
                         <Text style={styles.buttonText}>
                             ENTRAR
-                    </Text>
-                    </RectButton>
+                            </Text>
+                        </RectButton> */}
+                    </View>
                 </View>
-            </View>
-        </KeyboardAvoidingView>
+            </ImageBackground>
+        </KeyboardAvoidingView >
     );
 };
 
@@ -99,7 +107,14 @@ const pickerStyle = {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        padding: 32
+        padding: 32,
+        backgroundColor: '#119ebcb5'
+    },
+
+    backgroundImage: {
+        flex: 1,
+        alignSelf: 'stretch',
+        // width: null,
     },
 
     main: {
@@ -108,7 +123,7 @@ const styles = StyleSheet.create({
     },
 
     title: {
-        color: '#322153',
+        color: '#FFF',
         fontSize: 32,
         fontFamily: 'Ubuntu_700Bold',
         maxWidth: 260,
@@ -137,31 +152,26 @@ const styles = StyleSheet.create({
         fontSize: 16,
     },
 
-    button: {
-        backgroundColor: '#34CB79',
+    submit: {
         height: 60,
         flexDirection: 'row',
-        borderRadius: 10,
+        borderRadius: 30,
         overflow: 'hidden',
         alignItems: 'center',
         marginTop: 8,
+        backgroundColor: 'transparent',
+        borderWidth: 2,
+        borderColor: '#fff',
     },
 
-    buttonIcon: {
-        height: 60,
-        width: 60,
-        backgroundColor: 'rgba(0, 0, 0, 0.1)',
-        justifyContent: 'center',
-        alignItems: 'center'
-    },
-
-    buttonText: {
+    submitText: {
         flex: 1,
         justifyContent: 'center',
         textAlign: 'center',
         color: '#FFF',
         fontFamily: 'Roboto_500Medium',
-        fontSize: 16,
-    }
+        fontSize: 18,
+    },
+
 });
 export default Home;
