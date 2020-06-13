@@ -161,30 +161,7 @@ const Point = () => {
                 </View>
 
                 <View>
-                    <div className="field-group">
-                        <div className="field">
-                            <label htmlFor="uf">UF</label>
-                            <select name="uf" id="uf" onChange={selectUf} value={selectedUf} required>
-                                <option value="0">Selecione uma UF</option>
-                                {
-                                    ufs.map(uf => (
-                                        <option key={uf.initials} value={uf.initials}>{uf.name}</option>
-                                    ))
-                                }
-                            </select>
-                        </div>
-                        <div className="field">
-                            <label htmlFor="uf">Município</label>
-                            <select name="municipio" id="municipio" onChange={selectCity} value={selectedCity}>
-                                <option value="0">Selecione um Município</option>
-                                {
-                                    cities.map(city => (
-                                        <option key={city.name} value={city.name}>{city.name}</option>
-                                    ))
-                                }
-                            </select>
-                        </div>
-                    </div>
+
 
                     <View style={styles.inputCombo}>
                         <TextInput style={styles.input} placeholder="Login" onChange={() => { }} />
