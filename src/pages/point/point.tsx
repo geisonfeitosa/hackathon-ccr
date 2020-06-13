@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, ChangeEvent } from 'react';
 import { Feather as Icon } from '@expo/vector-icons'
 import { View, Text, Image, StyleSheet, TouchableOpacity, SafeAreaView, Alert } from 'react-native';
-import { ScrollView } from 'react-native-gesture-handler';
+import { ScrollView, TextInput, RectButton } from 'react-native-gesture-handler';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import Constants from 'expo-constants';
 import Map, { Marker } from 'react-native-maps';
@@ -34,10 +34,27 @@ interface Params {
     uf: string;
 }
 
+interface UF {
+    initials: string,
+    name: string
+}
+
+interface City {
+    uf: string,
+    name: string
+}
+
+
 const Point = () => {
     const navigation = useNavigation();
     const route = useRoute();
     // const params = route.params as Params;
+
+    const [ufs, setUfs] = useState<UF[]>([]);
+    const [cities, setCities] = useState<City[]>([]);
+
+    const [selectedUf, setselectedUf] = useState('0');
+    const [selectedCity, setSelectedCity] = useState('0');
 
     const [items, setItems] = useState<Item[]>([]);
     const [points, setPoints] = useState<Point[]>([]);
@@ -95,11 +112,21 @@ const Point = () => {
         selectedItems.includes(id) ? setSelectedItems(selectedItems.filter(i => i !== id)) : setSelectedItems([...selectedItems, id]);
     }
 
+    function selectUf(event: ChangeEvent<HTMLSelectElement>) {
+        const uf = event.target.value;
+        setselectedUf(uf);
+    }
+
+    function selectCity(event: ChangeEvent<HTMLSelectElement>) {
+        const city = event.target.value;
+        setSelectedCity(city);
+    }
+
     return (
         <SafeAreaView style={{ flex: 1 }}>
             <View style={styles.container}>
                 <TouchableOpacity onPress={navigateBack}>
-                    <Icon name="arrow-left" size={20} color="#34cb79"></Icon>
+                    <Icon name="arrow-left" size={20} color="#258294"></Icon>
                 </TouchableOpacity>
 
                 <Text style={styles.title}>Bem vindo.</Text>
@@ -132,8 +159,51 @@ const Point = () => {
                         )
                     }
                 </View>
+
+                <View>
+                    <div className="field-group">
+                        <div className="field">
+                            <label htmlFor="uf">UF</label>
+                            <select name="uf" id="uf" onChange={selectUf} value={selectedUf} required>
+                                <option value="0">Selecione uma UF</option>
+                                {
+                                    ufs.map(uf => (
+                                        <option key={uf.initials} value={uf.initials}>{uf.name}</option>
+                                    ))
+                                }
+                            </select>
+                        </div>
+                        <div className="field">
+                            <label htmlFor="uf">Município</label>
+                            <select name="municipio" id="municipio" onChange={selectCity} value={selectedCity}>
+                                <option value="0">Selecione um Município</option>
+                                {
+                                    cities.map(city => (
+                                        <option key={city.name} value={city.name}>{city.name}</option>
+                                    ))
+                                }
+                            </select>
+                        </div>
+                    </div>
+
+                    <View style={styles.inputCombo}>
+                        <TextInput style={styles.input} placeholder="Login" onChange={() => { }} />
+                        <TextInput style={styles.input} placeholder="Senha" onChange={() => { }} />
+                    </View>
+
+                    <RectButton style={styles.button} onPress={() => { }}>
+                        <View style={styles.buttonIcon}>
+                            <Text>
+                                <Icon name="arrow-right" color="#FFF" size={24}></Icon>
+                            </Text>
+                        </View>
+                        <Text style={styles.buttonText}>
+                            ENTRAR
+                    </Text>
+                    </RectButton>
+                </View>
             </View>
-            <View style={styles.itemsContainer}>
+            {/* <View style={styles.itemsContainer}>
                 <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: 20 }}>
                     {
                         items.map(i => (
@@ -144,7 +214,7 @@ const Point = () => {
                         ))
                     }
                 </ScrollView>
-            </View>
+            </View> */}
         </SafeAreaView>
     );
 };
@@ -160,6 +230,49 @@ const styles = StyleSheet.create({
         fontSize: 20,
         fontFamily: 'Ubuntu_700Bold',
         marginTop: 24,
+    },
+
+    inputCombo: {
+        // flex: 2,
+        marginTop: 15,
+        flexDirection: 'row'
+    },
+
+    input: {
+        height: 60,
+        backgroundColor: '#FFF',
+        borderRadius: 10,
+        marginBottom: 8,
+        paddingHorizontal: 24,
+        fontSize: 16
+    },
+
+    button: {
+        backgroundColor: '#258294',
+        height: 60,
+        flexDirection: 'row',
+        borderRadius: 10,
+        overflow: 'hidden',
+        alignItems: 'center',
+        marginTop: 8,
+        marginBottom: 15
+    },
+
+    buttonIcon: {
+        height: 60,
+        width: 60,
+        backgroundColor: 'rgba(0, 0, 0, 0.1)',
+        justifyContent: 'center',
+        alignItems: 'center'
+    },
+
+    buttonText: {
+        flex: 1,
+        justifyContent: 'center',
+        textAlign: 'center',
+        color: '#FFF',
+        fontFamily: 'Roboto_500Medium',
+        fontSize: 16,
     },
 
     description: {
