@@ -24,6 +24,7 @@ const Home = () => {
     const [selectedCity, setSelectedCity] = useState('0');
 
     const navigation = useNavigation();
+
     function navigatePoint() {
         navigation.navigate('Point');
     };
@@ -48,21 +49,18 @@ const Home = () => {
         });
     }, [selectedUf]);
 
-    return ( //KeyboardAvoidingView é para o teclado nao ficar sobre os inputs e textos
+    return (
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
             <View style={styles.container}>
                 <View style={styles.main}>
                     <Text>logo</Text>
-                    <View>
-                        <Text style={styles.title}>Titulo.</Text>
-                        <Text style={styles.description}>Subtitulo.</Text>
+                    <View style={{alignItems: 'center'}}>
+                        <Text style={styles.title}>Aplicativo feito para você caminhoneiro</Text>
+                        {/* <Text style={styles.description}>Subtitulo.</Text> */}
                     </View>
                 </View>
 
                 <View style={styles.footer}>
-                    <TextInput style={styles.input} placeholder="Login" onChange={() => { }} />
-                    <TextInput style={styles.input} placeholder="Senha" onChange={() => { }} />
-
                     <RectButton style={styles.button} onPress={navigatePoint}>
                         <View style={styles.buttonIcon}>
                             <Text>
