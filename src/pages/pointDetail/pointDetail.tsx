@@ -14,36 +14,31 @@ interface Params {
     pointId: number;
 }
 
-interface Data {
-    point: {
-        id: number;
-        image: string;
-        imageUrl: string;
-        title: string;
-        email: string;
-        whatsapp: string;
-        latitude: number;
-        longitude: number;
-        city: string;
-        uf: string;
-    };
+interface Servico {
+    title: string;
+    valor: string;
+}
 
-    items: {
-        title: string;
-    }[];
+interface Vaga {
+    title: string;
+    quantidade: number;
 }
 
 interface Point {
     id: number;
-    image: string;
-    imageUrl: string;
+    imagePerfilUrl: string;
+    imagesUrl: string[],
     title: string;
-    email: string;
+    descricao: string;
     whatsapp: string;
     latitude: number;
     longitude: number;
     city: string;
     uf: string;
+    pontos: number[];
+    comentarios: string[];
+    servicos: Servico[];
+    vagas: Vaga[];
 }
 
 
@@ -54,56 +49,79 @@ const PointDetail = () => {
 
     const [data, setData] = useState<Point>({} as Point);
 
+
     useEffect(() => {
         setData(params);
-        console.log(data);
     }, []);
+
+    if (data.id === undefined) {
+        //loading
+        return null;
+    }
 
     function navigateBack() {
         navigation.goBack(); //volta para a pagina anterior
     };
 
-    function composeMail() {
-        MailComposer.composeAsync({
-            subject: 'Interesse na coleta de resíduos',
-            recipients: [data.email]
-        });
-    }
-
     function composeWhatsapp() {
         Linking.openURL(`whatsapp://send?phone=${data.whatsapp}&text=Tenho interesse sobre coleta de resíduos`);
     }
 
-    if(!data) {
-        //loading
-        return null;
-    }
 
     return (
         <SafeAreaView style={{ flex: 1 }}>
+            <Image style={styles.pointImage} source={{ uri: data.imagePerfilUrl }}></Image>
             <View style={styles.container}>
-                <TouchableOpacity onPress={navigateBack}>
+                {/* <TouchableOpacity onPress={navigateBack}>
                     <Icon name="arrow-left" size={20} color="#34cb79"></Icon>
-                </TouchableOpacity>
+                </TouchableOpacity> */}
 
-                <Image style={styles.pointImage} source={{ uri: data.imageUrl }}></Image>
-                <Text style={styles.pointName}>{data.title}</Text>
-                {/* <Text style={styles.pointItems}>{data.items.map(i=> i.title).join(", ")}</Text> */}
-
-                <View style={styles.address}>
-                    <Text style={styles.addressTitle}>Endereço</Text>
-                    <Text style={styles.addressContent}>{data.city}, {data.uf}</Text>
+                <View style={styles.imagesContainer}>
+                    <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: 20 }}>
+                        {
+                            data.imagesUrl.map(i => (
+                                <Image key={String(i)} style={styles.image} source={{ uri: i }}></Image>
+                            ))
+                        }
+                    </ScrollView>
                 </View>
+
+                <ScrollView showsHorizontalScrollIndicator={false}>
+                    <Text style={styles.pointName}>{data.title}</Text>
+                    <View style={styles.row}>
+                        {
+                            data.pontos.map(p => (
+                                <Icon name="star" size={22} color="#ffc107"></Icon>
+                            ))
+                        }
+                    </View>
+                    {/* <Text style={styles.pointItems}>{data.items.map(i=> i.title).join(", ")}</Text> */}
+
+                    <View style={styles.address}>
+                        <Text style={styles.addressContent}>{data.city}, {data.uf}</Text>
+                        <Text style={styles.addressTitle}>{data.descricao}</Text>
+                    </View>
+
+                    {
+                        data.servicos.map(s => (
+                            <View style={styles.servicos}>
+                                <Text style={styles.servicoTitle}>{s.title}</Text>
+                                <Text style={styles.servicoValor}>{s.valor}</Text>
+                            </View>
+                        ))
+                    }
+                </ScrollView>
+
             </View>
 
             <View style={styles.footer}>
+                <RectButton onPress={navigateBack} style={styles.button}>
+                    <Icon name="arrow-left" size={20} color="#FFF"></Icon>
+                    <Text style={styles.buttonText}>Voltar ao mapa</Text>
+                </RectButton>
                 <RectButton onPress={composeWhatsapp} style={styles.button}>
                     <FontAwesome name="whatsapp" size={20} color="#FFF"></FontAwesome>
                     <Text style={styles.buttonText}>Whatsapp</Text>
-                </RectButton>
-                <RectButton onPress={composeMail} style={styles.button}>
-                    <Icon name="mail" size={20} color="#FFF"></Icon>
-                    <Text style={styles.buttonText}>E-mail</Text>
                 </RectButton>
             </View>
         </SafeAreaView>
@@ -113,23 +131,70 @@ const PointDetail = () => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        padding: 32,
-        paddingTop: 20 + Constants.statusBarHeight,
+        padding: 15,
+        // paddingTop: 20 + Constants.statusBarHeight,
+    },
+
+    scroll: {
+        
+    },
+
+    row: {
+        flexDirection: 'row'
+    },
+
+    servicos: {
+        backgroundColor: '#FFF',
+        marginBottom: 3,
+        marginTop: 3,
+        paddingHorizontal: 10
+    },
+
+    servicoTitle: {
+        alignSelf: 'flex-start',
+        fontFamily: 'Roboto_500Medium',
+        fontSize: 20,
+    },
+
+    servicoValor: {
+        alignSelf: 'flex-end'
+    },
+
+    imagesContainer: {
+        flexDirection: 'row',
+        // marginTop: 16,
+        marginBottom: 32,
+    },
+
+    image: {
+        backgroundColor: '#fff',
+        // borderWidth: 2,
+        // borderColor: '#eee',
+        height: 120,
+        width: 150,
+        borderRadius: 5,
+        // paddingHorizontal: 1,
+        // paddingTop: 20,
+        paddingBottom: 16,
+        marginRight: 8,
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        textAlign: 'center',
     },
 
     pointImage: {
         width: '100%',
-        height: 120,
+        height: 220,
         resizeMode: 'cover',
-        borderRadius: 10,
-        marginTop: 32,
+        // borderRadius: 10,
+        // marginTop: 5,
     },
 
     pointName: {
         color: '#322153',
         fontSize: 28,
         fontFamily: 'Ubuntu_700Bold',
-        marginTop: 24,
+        // marginTop: 15,
     },
 
     pointItems: {
@@ -141,7 +206,8 @@ const styles = StyleSheet.create({
     },
 
     address: {
-        marginTop: 32,
+        marginTop: 15,
+        marginBottom: 15
     },
 
     addressTitle: {
@@ -159,9 +225,10 @@ const styles = StyleSheet.create({
 
     footer: {
         borderTopWidth: StyleSheet.hairlineWidth,
-        borderColor: '#999',
-        paddingVertical: 20,
-        paddingHorizontal: 32,
+        borderColor: '#f0f0f5',
+        backgroundColor: '#f0f0f5',
+        paddingVertical: 10,
+        paddingHorizontal: 20,
         flexDirection: 'row',
         justifyContent: 'space-between'
     },

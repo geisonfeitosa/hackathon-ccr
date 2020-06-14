@@ -12,23 +12,31 @@ import RNPickerSelect from 'react-native-picker-select';
 import axios from 'axios';
 
 
-interface Item {
-    id: number;
+interface Servico {
     title: string;
-    imageUrl: string;
-};
+    valor: string;
+}
+
+interface Vaga {
+    title: string;
+    quantidade: number;
+}
 
 interface Point {
     id: number;
-    image: string;
-    imageUrl: string;
+    imagePerfilUrl: string;
+    imagesUrl: string[],
     title: string;
-    email: string;
+    descricao: string;
     whatsapp: string;
     latitude: number;
     longitude: number;
     city: string;
     uf: string;
+    pontos: number[];
+    comentarios: string[];
+    servicos: Servico[];
+    vagas: Vaga[];
 }
 
 interface Params {
@@ -77,24 +85,11 @@ const Point = () => {
     // }, []);
 
     useEffect(() => {
-        setInitialPosition([-16.7200086,-49.3990593]);
+        setInitialPosition([-16.7200086, -49.3990593]);
     }, []);
 
     useEffect(() => {
-        setPoints([
-            {
-                id: 1,
-                image: 'ponto1',
-                imageUrl: 'https://images.unsplash.com/photo-1492168732976-2676c584c675?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=800&q=80',
-                title: 'Ponto 1',
-                email: 'ponto1@teste.com',
-                whatsapp: '62999999999',
-                latitude: -16.7178895,
-                longitude: -49.3927677,
-                city: 'Goiânia',
-                uf: 'GO',
-            },
-        ]);
+        setPoints(POINS);
     }, []);
 
     useEffect(() => {
@@ -133,45 +128,40 @@ const Point = () => {
 
     return (
         <SafeAreaView style={{ flex: 1 }}>
-            <View style={styles.container}>
-
-                <Text style={styles.title}>Bem vindo.</Text>
-                <Text style={styles.description}>Encontre no mapa um ponto de parada.</Text>
-
-                <View style={styles.mapContainer}>
-                    {
-                        initialPosition[0] !== 0 &&
-                        (
-                            <Map style={styles.map}
-                                onPress={() => {}}
-                                key={initialPosition[0]}
-                                loadingEnabled={initialPosition[0] === 0}
-                                initialRegion={{
-                                    latitude: initialPosition[0],
-                                    longitude: initialPosition[1],
-                                    latitudeDelta: 0.015,
-                                    longitudeDelta: 0.015
-                                }}>
-                                {
-                                    points.map(p => (
-                                        <Marker key={p.id} coordinate={{
-                                            latitude: p.latitude,
-                                            longitude: p.longitude
-                                        }} onPress={() => navigatePointDetail(p)}>
-                                            <View style={styles.mapMarkerContainer}>
-                                                <Image style={styles.mapMarkerImage} source={{ uri: p.imageUrl }}></Image>
-                                                <Text style={styles.mapMarkerTitle}>{p.title}</Text>
-                                            </View>
-                                        </Marker>
-                                    ))
-                                }
-                            </Map>
-                        )
-                    }
-                </View>
-
+            <View style={styles.mapContainer}>
+                {/* <Text style={styles.title}>Pontos de Apoio</Text> */}
+                {
+                    initialPosition[0] !== 0 &&
+                    (
+                        <Map style={styles.map}
+                            onPress={() => { }}
+                            key={initialPosition[0]}
+                            loadingEnabled={initialPosition[0] === 0}
+                            initialRegion={{
+                                latitude: initialPosition[0],
+                                longitude: initialPosition[1],
+                                latitudeDelta: 0.015,
+                                longitudeDelta: 0.015
+                            }}>
+                            {
+                                points.map(p => (
+                                    <Marker key={p.id} coordinate={{
+                                        latitude: p.latitude,
+                                        longitude: p.longitude
+                                    }} onPress={() => navigatePointDetail(p)}>
+                                        <View style={styles.mapMarkerContainer}>
+                                            <Image style={styles.mapMarkerImage} source={{ uri: p.imagePerfilUrl }}></Image>
+                                            <Text style={styles.mapMarkerTitle}>{p.title}</Text>
+                                        </View>
+                                    </Marker>
+                                ))
+                            }
+                        </Map>
+                    )
+                }
+            </View>
+            <View style={styles.containerFilter}>
                 <View>
-
                     <View style={styles.inputCombo}>
                         <View>
                             <RNPickerSelect style={pickerStyleUf} placeholder={{ label: 'UF' }}
@@ -225,20 +215,19 @@ const pickerStyleCity = {
     inputIOS: {
         height: 60,
         backgroundColor: '#FFF',
-        borderRadius: 10,
         marginBottom: 8,
         paddingHorizontal: 24,
         fontSize: 16,
         width: 200
     },
+
     inputAndroid: {
         height: 60,
         backgroundColor: '#FFF',
-        borderRadius: 10,
         marginBottom: 8,
         paddingHorizontal: 24,
         fontSize: 16,
-        width: 220
+        width: 250
     }
 }
 
@@ -252,6 +241,7 @@ const pickerStyleUf = {
         fontSize: 16,
         width: 100
     },
+
     inputAndroid: {
         height: 60,
         backgroundColor: '#FFF',
@@ -265,30 +255,21 @@ const pickerStyleUf = {
 }
 
 const styles = StyleSheet.create({
-    container: {
+
+    containerFilter: {
         flex: 1,
-        paddingHorizontal: 32,
-        paddingTop: 20 + Constants.statusBarHeight,
+        paddingHorizontal: 15
     },
 
     title: {
         fontSize: 20,
         fontFamily: 'Ubuntu_700Bold',
-        marginTop: 24,
+        marginTop: 24
     },
 
     inputCombo: {
         marginTop: 15,
         flexDirection: 'row'
-    },
-
-    input: {
-        height: 60,
-        backgroundColor: '#FFF',
-        borderRadius: 10,
-        marginBottom: 8,
-        paddingHorizontal: 24,
-        fontSize: 16
     },
 
     button: {
@@ -327,11 +308,11 @@ const styles = StyleSheet.create({
     },
 
     mapContainer: {
-        flex: 1,
+        flex: 3,
+        paddingTop: Constants.statusBarHeight,
         width: '100%',
-        borderRadius: 10,
+        borderRadius: 3,
         overflow: 'hidden',
-        marginTop: 16,
     },
 
     map: {
@@ -401,5 +382,71 @@ const styles = StyleSheet.create({
         fontSize: 13,
     },
 });
+
+const POINS: Point[] = [
+    {
+        id: 1,
+        imagePerfilUrl: 'https://images.unsplash.com/photo-1566399468271-2855a22612a3?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1950&q=80',
+        imagesUrl: [
+            'https://images.unsplash.com/photo-1492168732976-2676c584c675?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=800&q=80',
+            'https://images.unsplash.com/photo-1520279406162-c955e67194ed?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=2134&q=80',
+            'https://images.unsplash.com/photo-1559841644-08984562005a?ixlib=rb-1.2.1&auto=format&fit=crop&w=1267&q=80',
+            'https://images.unsplash.com/photo-1515362655824-9a74989f318e?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80'
+        ],
+        title: 'Posto KM 300',
+        descricao: 'Contamos com amplo local para estacionamento, você pode fazer sua reserva pelo Whatsapp.',
+        whatsapp: '62999999999',
+        latitude: -16.7178895,
+        longitude: -49.3927677,
+        city: 'Goiânia',
+        uf: 'GO',
+        pontos: [1, 1, 1, 1],
+        comentarios: [
+            'O local é bem iluminado, me senti seguro lá.',
+            'Além de bem iluminado tem segurança noturno, gostei do local.',
+            'Achei o preço da comida no restaurante um pouco puchado, mas a comida é boa.'
+        ],
+        servicos: [
+            {
+                title: 'Estacionamento para Bitrem',
+                valor: 'Gratuito'
+            },
+            {
+                title: 'Estacionamento para vanderleia',
+                valor: 'Gratuito'
+            },
+            {
+                title: 'Restaurante por Kg',
+                valor: '19,00'
+            },
+            {
+                title: 'Restaurante prato feito',
+                valor: '10,00'
+            },
+            {
+                title: 'Lanchonete',
+                valor: ''
+            },
+            {
+                title: 'Dormitórios',
+                valor: '30,00 a pernoite'
+            }
+        ],
+        vagas: [
+            {
+                title: 'Bitrem',
+                quantidade: 9
+            },
+            {
+                title: 'Vanderleia',
+                quantidade: 5
+            },
+            {
+                title: 'Dormitório',
+                quantidade: 3
+            }
+        ],
+    },
+]
 
 export default Point;
