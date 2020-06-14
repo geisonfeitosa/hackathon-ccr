@@ -110,7 +110,7 @@ const PointDetail = () => {
                     </View>
 
                     <View style={[styles.temosVagas, data.vagas.length === 0 ? styles.lotado : {}]}>
-                        <Text style={styles.temosVagasLabel}>{(data.vagas.length != 0 ? 'Temos Vagas' : 'Lotado')}</Text>
+                        <Text style={styles.temosVagasLabel}>{(data.vagas.length != 0 ? 'Estacionamento com Vagas' : 'Estacionamento Lotado')}</Text>
                     </View>
                 </View>
 
@@ -186,7 +186,7 @@ const styles = StyleSheet.create({
         borderRadius: 5,
         alignSelf: 'flex-end',
         alignItems: 'center',
-        width: 120,
+        width: 135,
         marginVertical: 10
     },
 
@@ -197,7 +197,7 @@ const styles = StyleSheet.create({
         borderRadius: 5,
         alignSelf: 'flex-end',
         alignItems: 'center',
-        width: 120,
+        width: 135,
         marginVertical: 10
     },
 
@@ -320,7 +320,7 @@ const styles = StyleSheet.create({
 
     button: {
         width: '48%',
-        backgroundColor: '#34CB79',
+        backgroundColor: '#258294',
         borderRadius: 10,
         height: 50,
         flexDirection: 'row',

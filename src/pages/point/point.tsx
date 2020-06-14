@@ -243,7 +243,6 @@ const pickerStyleUf = {
 }
 
 const styles = StyleSheet.create({
-
     containerFilter: {
         flex: 1,
         paddingHorizontal: 15
