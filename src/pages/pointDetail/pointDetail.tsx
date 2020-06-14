@@ -6,8 +6,6 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 import Constants from 'expo-constants';
 import Map, { Marker } from 'react-native-maps';
 import { SvgUri } from 'react-native-svg';
-import api from '../../services/api';
-import * as MailComposer from 'expo-mail-composer';
 
 
 interface Params {
@@ -24,9 +22,13 @@ interface Vaga {
     quantidade: number;
 }
 
+interface Comentario {
+    descricao: string;
+    autor: string;
+}
+
 interface Point {
     id: number;
-    imagePerfilUrl: string;
     imagesUrl: string[],
     title: string;
     descricao: string;
@@ -36,80 +38,117 @@ interface Point {
     city: string;
     uf: string;
     pontos: number[];
-    comentarios: string[];
+    comentarios: Comentario[];
     servicos: Servico[];
     vagas: Vaga[];
 }
 
 
 const PointDetail = () => {
-    const navigation = useNavigation(); //para navegar entre as rodas
-    const route = useRoute(); //acesso aos dados enviados pela rota anterior
+    const navigation = useNavigation();
+    const route = useRoute();
     const params = route.params as Point;
 
     const [data, setData] = useState<Point>({} as Point);
+    const [imageUrlPrincipal, setImageUrlPrincipal] = useState<String>('');
 
 
     useEffect(() => {
         setData(params);
     }, []);
 
+    useEffect(() => {
+        if (data.imagesUrl !== undefined) {
+            selectedImageUrlPrincipal(data.imagesUrl[0]);
+        }
+    }, [data.imagesUrl]);
+
     if (data.id === undefined) {
         //loading
         return null;
     }
 
+    function selectedImageUrlPrincipal(imageUrl: String) {
+        setImageUrlPrincipal(imageUrl);
+    }
+
     function navigateBack() {
-        navigation.goBack(); //volta para a pagina anterior
-    };
+        navigation.goBack();
+    }
 
     function composeWhatsapp() {
-        Linking.openURL(`whatsapp://send?phone=${data.whatsapp}&text=Tenho interesse sobre coleta de resíduos`);
+        Linking.openURL(`whatsapp://send?phone=${data.whatsapp}`);
     }
 
 
     return (
         <SafeAreaView style={{ flex: 1 }}>
-            <Image style={styles.pointImage} source={{ uri: data.imagePerfilUrl }}></Image>
+            <Image style={styles.pointImage} source={{ uri: String(imageUrlPrincipal) }}></Image>
             <View style={styles.container}>
-                {/* <TouchableOpacity onPress={navigateBack}>
-                    <Icon name="arrow-left" size={20} color="#34cb79"></Icon>
-                </TouchableOpacity> */}
-
                 <View style={styles.imagesContainer}>
                     <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: 20 }}>
                         {
                             data.imagesUrl.map(i => (
-                                <Image key={String(i)} style={styles.image} source={{ uri: i }}></Image>
+                                <TouchableOpacity key={String(i)} onPress={() => selectedImageUrlPrincipal(i)}>
+                                    <Image style={styles.image} source={{ uri: i }}></Image>
+                                </TouchableOpacity>
                             ))
                         }
                     </ScrollView>
                 </View>
 
-                <ScrollView showsHorizontalScrollIndicator={false}>
-                    <Text style={styles.pointName}>{data.title}</Text>
-                    <View style={styles.row}>
-                        {
-                            data.pontos.map(p => (
-                                <Icon name="star" size={22} color="#ffc107"></Icon>
-                            ))
-                        }
+                <View style={styles.header}>
+                    <View>
+                        <Text style={styles.pointName}>{data.title}</Text>
+                        <View style={styles.row}>
+                            {
+                                data.pontos.map(p => (
+                                    <Icon name="star" size={22} color="#ffc107"></Icon>
+                                ))
+                            }
+                        </View>
                     </View>
-                    {/* <Text style={styles.pointItems}>{data.items.map(i=> i.title).join(", ")}</Text> */}
 
+                    <View style={[styles.temosVagas, data.vagas.length === 0 ? styles.lotado : {}]}>
+                        <Text style={styles.temosVagasLabel}>{(data.vagas.length != 0 ? 'Temos Vagas' : 'Lotado')}</Text>
+                    </View>
+                </View>
+
+                <ScrollView showsHorizontalScrollIndicator={false}>
                     <View style={styles.address}>
                         <Text style={styles.addressContent}>{data.city}, {data.uf}</Text>
                         <Text style={styles.addressTitle}>{data.descricao}</Text>
+                        {
+                            data.vagas.map(v => (
+                                <Text style={styles.vaga}>{`${v.quantidade} vagas ${v.title} disponíveis.`}</Text>
+                            ))
+                        }
                     </View>
 
-                    {
-                        data.servicos.map(s => (
-                            <View style={styles.servicos}>
-                                <Text style={styles.servicoTitle}>{s.title}</Text>
-                                <Text style={styles.servicoValor}>{s.valor}</Text>
-                            </View>
-                        ))
-                    }
+                    <View>
+                        <Text style={styles.addressTitle}>Serviços:</Text>
+                        {
+                            data.servicos.map(s => (
+                                <View style={styles.servico}>
+                                    <Text style={styles.servicoTitle}>{s.title}</Text>
+                                    <Text style={styles.servicoValor}>{s.valor}</Text>
+                                </View>
+                            ))
+                        }
+                    </View>
+
+                    <View style={styles.comentarios}>
+                        <Text style={styles.addressTitle}>Comentários:</Text>
+                        {
+                            data.comentarios.map(c => (
+                                <View style={styles.comentario}>
+                                    <Text style={styles.comentarioDescricao}>{c.descricao}</Text>
+                                    <Text style={styles.servicoValor}>{c.autor}</Text>
+                                </View>
+                            ))
+                        }
+                    </View>
+
                 </ScrollView>
 
             </View>
@@ -131,19 +170,49 @@ const PointDetail = () => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        padding: 15,
-        // paddingTop: 20 + Constants.statusBarHeight,
+        padding: 15
     },
 
-    scroll: {
-        
+    vaga: {
+        color: '#322153',
+        fontFamily: 'Roboto_500Medium',
+        fontSize: 16
+    },
+
+    lotado: {
+        backgroundColor: '#fd092a',
+        paddingHorizontal: 8,
+        paddingVertical: 3,
+        borderRadius: 5,
+        alignSelf: 'flex-end',
+        alignItems: 'center',
+        width: 120,
+        marginVertical: 10
+    },
+
+    temosVagas: {
+        backgroundColor: '#34CB79',
+        paddingHorizontal: 8,
+        paddingVertical: 3,
+        borderRadius: 5,
+        alignSelf: 'flex-end',
+        alignItems: 'center',
+        width: 120,
+        marginVertical: 10
+    },
+
+    temosVagasLabel: {
+        fontFamily: 'Roboto_400Regular',
+        fontSize: 16,
+        lineHeight: 24,
+        color: '#FFF'
     },
 
     row: {
         flexDirection: 'row'
     },
 
-    servicos: {
+    servico: {
         backgroundColor: '#FFF',
         marginBottom: 3,
         marginTop: 3,
@@ -160,22 +229,33 @@ const styles = StyleSheet.create({
         alignSelf: 'flex-end'
     },
 
+    comentarios: {
+        marginTop: 15
+    },
+
+    comentario: {
+        borderTopWidth: 1,
+        borderBottomColor: '#258294',
+        paddingHorizontal: 10,
+        paddingVertical: 5
+    },
+
+    comentarioDescricao: {
+        alignSelf: 'flex-start',
+        fontFamily: 'Roboto_500Medium',
+        fontSize: 18
+    },
+
     imagesContainer: {
         flexDirection: 'row',
-        // marginTop: 16,
-        marginBottom: 32,
+        marginBottom: 10
     },
 
     image: {
         backgroundColor: '#fff',
-        // borderWidth: 2,
-        // borderColor: '#eee',
-        height: 120,
-        width: 150,
+        height: 70,
+        width: 120,
         borderRadius: 5,
-        // paddingHorizontal: 1,
-        // paddingTop: 20,
-        paddingBottom: 16,
         marginRight: 8,
         alignItems: 'center',
         justifyContent: 'space-between',
@@ -185,16 +265,13 @@ const styles = StyleSheet.create({
     pointImage: {
         width: '100%',
         height: 220,
-        resizeMode: 'cover',
-        // borderRadius: 10,
-        // marginTop: 5,
+        resizeMode: 'cover'
     },
 
     pointName: {
         color: '#322153',
         fontSize: 28,
-        fontFamily: 'Ubuntu_700Bold',
-        // marginTop: 15,
+        fontFamily: 'Ubuntu_700Bold'
     },
 
     pointItems: {
@@ -206,7 +283,6 @@ const styles = StyleSheet.create({
     },
 
     address: {
-        marginTop: 15,
         marginBottom: 15
     },
 
@@ -229,6 +305,15 @@ const styles = StyleSheet.create({
         backgroundColor: '#f0f0f5',
         paddingVertical: 10,
         paddingHorizontal: 20,
+        flexDirection: 'row',
+        justifyContent: 'space-between'
+    },
+
+    header: {
+        borderTopWidth: StyleSheet.hairlineWidth,
+        borderColor: '#f0f0f5',
+        backgroundColor: '#f0f0f5',
+        paddingVertical: 10,
         flexDirection: 'row',
         justifyContent: 'space-between'
     },
