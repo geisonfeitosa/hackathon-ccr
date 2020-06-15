@@ -1,4 +1,4 @@
-# hackathon-ccr
+# Mão na Roda
 
 Essa aplição visa a melhoraria na qualidade de vida nas estradas, principalmente quanto a saúde física e metal dos caminhoneiros.
 Infelizmente, a falta de segurança é uma realidade no nosso país e nas estradas não seria diferente.
